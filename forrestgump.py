@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 17 14:20 2018
-@author: Bulat
-
-Updated on Sat Mar 03 13:22 2018
+Created on Sat Mar 03 13:22 2018
 @author: IrinaZakharova
 """
 
@@ -11,7 +8,7 @@ Updated on Sat Mar 03 13:22 2018
 
 import telebot
 from telebot import types
-import dbworker
+#import dbworker
 import os
 import requests
 from vedis import Vedis
@@ -29,6 +26,7 @@ class States(Enum):
     S_START = "0"  # Начало нового диалога
     S_DECIDE = "1"
     S_SEND_PIC = "2"
+    S_EXIT = "3"
 
 # Пытаемся узнать из базы «состояние» пользователя
 def get_current_state(user_id):
@@ -57,9 +55,18 @@ path=os.getcwd()
 def cmd_start(message):
     state = get_current_state(message.chat.id)
     if state == States.S_DECIDE.value:
-        markup = types.ReplyKeyboardMarkup()
-        markup.row('Да', 'Нет')
-        bot.send_message(message.chat.id, "Ну что, дашь мне поручение? :)", reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
+        markup.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
+        results = []
+        single_msg = types.InlineQueryResultArticle(
+            id="1", title="Press me",
+            input_message_content=types.InputTextMessageContent(message_text="Ну что, дашь мне поручение? :)"),
+            reply_markup=markup
+        )
+        results.append(single_msg)
+        bot.answer_inline_query(query.id, results)
+        #bot.send_message(message.chat.id, "Ну что, дашь мне поручение? :)", reply_markup=markup)
     elif state == States.S_SEND_PIC.value:
         bot.send_message(message.chat.id, "Я все еще жду фото... Не медли, я на низком старте :)")
     else:  # Под "остальным" понимаем состояние "0" - начало диалога
@@ -74,13 +81,18 @@ def cmd_reset(message):
     set_state(message.chat.id, States.S_START.value)
 
 
-@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_DECIDE.value)
+@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_DECIDE.value)
 def user_entering_name(message):
     # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
     bot.send_message(message.chat.id, "Загружай картинку!")
     set_state(message.chat.id, States.S_SEND_PIC.value)
 
 
+@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_EXIT.value)
+def exit_chat(message):
+    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
+    bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
+    set_state(message.chat.id, States.S_START.value)
 
     
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value, content_types=['photo'])
@@ -92,8 +104,8 @@ def user_picture(message):
     print ('fileID =', fileID)
     file = bot.get_file(fileID)
     print ('file.file_path =', file.file_path)
-    telegram_api='http://api.telegram.org/file/bot497478839:AAFSeEOPFU2PGgBMYm_zSoZz8ez7s6-mWiE/photos/'
-    long_url=os.path.join(telegram_api, file.file_path.rsplit('/',1)[-1])
+    telegram_api='http://api.telegram.org/file/bot548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis/photos/'
+    long_url=os.path.join(telegram_api, file.file_path.rsplit('/', 1)[-1])
     print(long_url)
     #image = urllib.URLopener()
     #image.retrieve(long_url,"00000001.jpg")
@@ -109,7 +121,7 @@ def user_picture(message):
 
             handle.write(block)
     user = message.from_user
-    result = [user , long_url]
+    result = [user, long_url]
     print(result)
 
     #подключаем бота к S3
@@ -169,7 +181,8 @@ def user_entering_payment(message):
 @bot.inline_handler(lambda query: len(query.query) > 0)
 def query_text(query):
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton(text="Нажми меня", callback_data="test"))
+    kb.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
+    kb.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
     results = []
     # Обратите внимание: вместо текста - объект input_message_content c текстом!
     single_msg = types.InlineQueryResultArticle(
@@ -180,6 +193,19 @@ def query_text(query):
     results.append(single_msg)
     bot.answer_inline_query(query.id, results)
 """
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    # Если сообщение из чата с ботом
+    if call.message:
+        if call.data == "да":
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Тогда продолжим, загружай фото")
+            set_state(message.chat.id, States.S_SEND_PIC.value)
+        else:
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Жаль, тогда попробуем в следующий раз")
+            set_state(message.chat.id, States.S_EXIT.value)
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
