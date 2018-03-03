@@ -16,9 +16,9 @@ import os
 import requests
 from vedis import Vedis
 from enum import Enum
+import pictures_config as config
 
-token = '548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis'
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(config.token)
 db_file = "pictures.vdb"
 
 class States(Enum):
