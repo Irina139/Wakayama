@@ -38,6 +38,16 @@ def get_current_state(user_id):
         except KeyError:  # Если такого ключа почему-то не оказалось
             return States.S_START.value  # значение по умолчанию - начало диалога
 
+
+def set_state(user_id, value):
+    with Vedis(db_file) as db:
+        try:
+            db[user_id] = value
+            return True
+        except:
+            # тут желательно как-то обработать ситуацию
+            return False
+
 path=os.getcwd()
 
 # Начало диалога
@@ -54,28 +64,28 @@ def cmd_start(message):
         bot.send_message(message.chat.id, "Я все еще жду фото... Не медли, я на низком старте :)")
     else:  # Под "остальным" понимаем состояние "0" - начало диалога
         bot.send_message(message.chat.id, "Привет! Давай я спрячу твое фото ;)")
-        dbworker.set_state(message.chat.id, States.S_DECIDE.value)
+        set_state(message.chat.id, States.S_DECIDE.value)
 
 
 # По команде /reset будем сбрасывать состояния, возвращаясь к началу диалога
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
-    dbworker.set_state(message.chat.id, States.S_DECIDE.value)
+    set_state(message.chat.id, States.S_START.value)
 
 
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_DECIDE.value)
 def user_entering_name(message):
-    # В случае с именем не будем ничего проверять, пусть хоть "25671", хоть Евкакий
-    bot.send_message(message.chat.id, "Отличное имя, запомню! Загружай картинку!")
-    dbworker.set_state(message.chat.id, config.States.S_SEND_PIC.value)
+    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
+    bot.send_message(message.chat.id, "Загружай картинку!")
+    set_state(message.chat.id, States.S_SEND_PIC.value)
 
 
 
     
-@bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_SEND_PIC.value, content_types=['photo'])
+@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value, content_types=['photo'])
 def user_picture(message):
-    # В 67случае с именем не будем ничего проверять, пусть хоть "25671", хоть Евкакий
+    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
     bot.send_message(message.chat.id, "Загрузил! Давай ещё картинки!")
     print ('message.photo =', message.photo)
     fileID = message.photo[-1].file_id
@@ -121,7 +131,7 @@ def user_picture(message):
     #cv2.imwrite(os.path.join(path , 'waka.jpg'), message)
     #cv2.waitKey(0)
 
-    dbworker.set_state(message.chat.id, config.States.S_SEND_PIC.value)
+    #dbworker.set_state(message.chat.id, config.States.S_SEND_PIC.value)
 """
 
 @bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_ENTER_KOFE.value)
