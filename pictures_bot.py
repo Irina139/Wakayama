@@ -11,19 +11,33 @@ Updated on Sat Mar 03 13:22 2018
 
 import telebot
 from telebot import types
-import pictures_config as config
 import dbworker
-#import numpy as np
-#import cv2
 import os
-#from IPython.display import display, Image
-#import matplotlib.pyplot as plt
-#import matplotlib.image as mpimg
-
 import requests
+from vedis import Vedis
+from enum import Enum
 
+token = '548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis'
+bot = telebot.TeleBot(token)
+db_file = "pictures.vdb"
 
-bot = telebot.TeleBot(config.token)
+class States(Enum):
+    """
+    Мы используем БД Vedis, в которой хранимые значения всегда строки,
+    поэтому и тут будем использовать тоже строки (str)
+    """
+    S_START = "0"  # Начало нового диалога
+    S_DECIDE = "1"
+    S_SEND_PIC = "2"
+
+# Пытаемся узнать из базы «состояние» пользователя
+def get_current_state(user_id):
+    with Vedis(db_file) as db:
+        try:
+            return db[user_id]
+        except KeyError:  # Если такого ключа почему-то не оказалось
+            return States.S_START.value  # значение по умолчанию - начало диалога
+
 path=os.getcwd()
 
 # Начало диалога
@@ -31,25 +45,26 @@ path=os.getcwd()
 
 @bot.message_handler(commands=["start"], content_types=['text'])
 def cmd_start(message):
-    state = dbworker.get_current_state(message.chat.id)
-    if state == config.States.S_ENTER_NAME.value:
-        bot.send_message(message.chat.id, "Кажется, кто-то обещал отправить своё имя, но так и не сделал этого :( Жду...")
-    elif state == config.States.S_SEND_PIC.value:
-        bot.send_message(message.chat.id, "Кажется, кто-то хотел загрузить картинку, но так и не сделал этого :( Жду...")
+    state = get_current_state(message.chat.id)
+    if state == States.S_DECIDE.value:
+        markup = types.ReplyKeyboardMarkup()
+        markup.row('Да', 'Нет')
+        bot.send_message(message.chat.id, "Ну что, дашь мне поручение? :)", reply_markup=markup)
+    elif state == States.S_SEND_PIC.value:
+        bot.send_message(message.chat.id, "Я все еще жду фото... Не медли, я на низком старте :)")
     else:  # Под "остальным" понимаем состояние "0" - начало диалога
-        bot.send_message(message.chat.id, "Привет! Как я могу к тебе обращаться?")
-        dbworker.set_state(message.chat.id, config.States.S_ENTER_NAME.value)
-
-
+        bot.send_message(message.chat.id, "Привет! Давай я спрячу твое фото ;)")
+        dbworker.set_state(message.chat.id, States.S_DECIDE.value)
 
 
 # По команде /reset будем сбрасывать состояния, возвращаясь к началу диалога
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
-    bot.send_message(message.chat.id, "Что ж, начнём по-новой. Как тебя зовут?")
-    dbworker.set_state(message.chat.id, config.States.S_ENTER_NAME.value)
+    bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
+    dbworker.set_state(message.chat.id, States.S_DECIDE.value)
 
-@bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_ENTER_NAME.value)
+
+@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_DECIDE.value)
 def user_entering_name(message):
     # В случае с именем не будем ничего проверять, пусть хоть "25671", хоть Евкакий
     bot.send_message(message.chat.id, "Отличное имя, запомню! Загружай картинку!")
@@ -87,6 +102,9 @@ def user_picture(message):
     result = [user , long_url]
     print(result)
 
+    #подключаем бота к S3
+    import boto3
+    s3 = boto3.resource('s3')
 
     """img = cv2.imread(long_url,0)
     cv2.imshow('image',img)
