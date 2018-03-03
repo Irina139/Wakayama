@@ -83,8 +83,9 @@ def user_picture(message):
                 break
 
             handle.write(block)
-
-
+    user = message.from_user
+    result = [user , long_url]
+    print(result)
 
 
     """img = cv2.imread(long_url,0)
