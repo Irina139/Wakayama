@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 17 14:20:12 2018
-
+Created on Sat Feb 17 14:20 2018
 @author: Bulat
-"""
 
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Dec 10 00:21:32 2017
-
-@author: Bulat
+Updated on Sat Mar 03 13:22 2018
+@author: IrinaZakharova
 """
 
 # -*- coding: utf-8 -*-
