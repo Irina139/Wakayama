@@ -18,7 +18,7 @@ import telebot
 from telebot import types
 import pictures_config as config
 import dbworker
-import numpy as np
+#import numpy as np
 #import cv2
 import os
 #from IPython.display import display, Image
