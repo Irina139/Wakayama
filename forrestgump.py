@@ -80,25 +80,32 @@ def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
     set_state(message.chat.id, States.S_START.value)
 
+@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value)
+def user_entering_name(message):
+    bot.send_message(message.chat.id, """Привет! Я бегаю быстрее всех, а еще я невероятно вынослив! Давай, я спрячу 
+                                    твоё фото в самое укромное место, никто не найдет!...Кроме нас, конечно же ;)""")
+    set_state(message.chat.id, States.S_DECIDE.value)
+
 
 @bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_DECIDE.value)
 def user_entering_name(message):
-    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
-    bot.send_message(message.chat.id, "Загружай картинку!")
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
+    markup.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
+    results = []
+    single_msg = types.InlineQueryResultArticle(
+        id="1", title="Решайся",
+        input_message_content=types.InputTextMessageContent(message_text="Ну что, хочешь дать мне поручение? :)"),
+        reply_markup=markup
+    )
+    results.append(single_msg)
+    bot.answer_inline_query(query.id, results)
     set_state(message.chat.id, States.S_SEND_PIC.value)
-
-
-@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_EXIT.value)
-def exit_chat(message):
-    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
-    bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
-    set_state(message.chat.id, States.S_START.value)
 
     
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value, content_types=['photo'])
 def user_picture(message):
-    # Нужно придумать, как прочитать response пользователя; да => загружаем; нет => return to start + msg(жаль)
-    bot.send_message(message.chat.id, "Загрузил! Давай ещё картинки!")
+    bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где я спрятал твое фото!")
     print ('message.photo =', message.photo)
     fileID = message.photo[-1].file_id
     print ('fileID =', fileID)
@@ -120,32 +127,54 @@ def user_picture(message):
                 break
 
             handle.write(block)
+    result = []
     user = message.from_user
     result = [user, long_url]
     print(result)
+    keyboard = types.InlineKeyboardMarkup()
+    url_button = types.InlineKeyboardButton(text="Нажми и увидишь своё фото", url=long_url)
+    keyboard.add(url_button)
+    bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
+    set_state(message.chat.id, States.S_DECIDE.value)
 
+    @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value)
+    def exit_chat(message):
+        bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
+        set_state(message.chat.id, States.S_START.value)
+
+    @bot.callback_query_handler(func=lambda call: True)
+    def callback_inline(call):
+        # Если сообщение из чата с ботом
+        if call.message:
+            if call.data == "да":
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                      text="Отлично! Присылай фото!")
+                set_state(message.chat.id, States.S_SEND_PIC.value)
+            else:
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                      text="Жаль, тогда попробуем в следующий раз")
+                set_state(message.chat.id, States.S_EXIT.value)
+
+    """!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #подключаем бота к S3
     import boto3
     s3 = boto3.resource('s3')
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+
 
     """img = cv2.imread(long_url,0)
     cv2.imshow('image',img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()"""
-    
-    
 
     #plt.imshow(mpimg.imread(long_url))
     #display(Image(filename=long_url))
-    
-    
-    
+
     #cv2.imwrite(os.path.join(path , 'waka.jpg'), message)
     #cv2.waitKey(0)
 
-    #dbworker.set_state(message.chat.id, config.States.S_SEND_PIC.value)
-"""
 
+"""
 @bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_ENTER_KOFE.value)
 def user_entering_coffee(message):
     # А вот тут сделаем проверку
@@ -171,10 +200,7 @@ def user_entering_payment(message):
 
     elif str(message.text) in ('переводом','перевод', 'Переводом','Перевод'):
         bot.send_message(message.chat.id, "Отлично, номер карты для перевода 5555 5555 5555 5555!При оплате переводом ОБЯЗАТЕЛЬНО напиши в комментариях к переводу номер своего заказа! Я тебе напишу, когда кофе будет готов! Если захочешь ещё кофе - отправь команду /kofe.")
-        dbworker.set_state(message.chat.id, config.States.S_START.value)
-
-
-    
+        dbworker.set_state(message.chat.id, config.States.S_START.value)  
 """
 """
 # Простейший инлайн-хэндлер для ненулевых запросов
@@ -194,18 +220,7 @@ def query_text(query):
     bot.answer_inline_query(query.id, results)
 """
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
-    # Если сообщение из чата с ботом
-    if call.message:
-        if call.data == "да":
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="Тогда продолжим, загружай фото")
-            set_state(message.chat.id, States.S_SEND_PIC.value)
-        else:
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="Жаль, тогда попробуем в следующий раз")
-            set_state(message.chat.id, States.S_EXIT.value)
+
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
