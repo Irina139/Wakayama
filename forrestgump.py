@@ -109,7 +109,7 @@ def user_picture(message):
     print ('fileID =', fileID)
     file = bot.get_file(fileID)
     print ('file.file_path =', file.file_path)
-    telegram_api='http://api.telegram.org/file/bot548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis/photos/'
+    telegram_api='http://api.telegram.org/file/bot548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis/'
     long_url=os.path.join(telegram_api, file.file_path.rsplit('/', 1)[-1])
     print(long_url)
     #image = urllib.URLopener()
