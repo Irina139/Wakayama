@@ -75,7 +75,7 @@ def cmd_start(message):
 
 
 # По команде /reset будем сбрасывать состояния, возвращаясь к началу диалога
-@bot.message_handler(commands=["reset"])
+@bot.message_handler(commands=["reset"], content_types=['text'])
 def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
     set_state(message.chat.id, States.S_START.value)
