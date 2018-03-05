@@ -136,13 +136,13 @@ def user_picture(message):
     bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
     set_state(message.chat.id, States.S_START.value)
 
-    @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
+@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
                          content_types=[text])
     def exit_chat(message):
         bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
         set_state(message.chat.id, States.S_START.value)
 
-    @bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: True)
     def callback_inline(call):
         # Если сообщение из чата с ботом
         if call.message:
