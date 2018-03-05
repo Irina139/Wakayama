@@ -83,8 +83,8 @@ def cmd_reset(message):
 @bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value,
                      content_types=['text'])
 def user_entering_name(message):
-    bot.send_message(message.chat.id, "Привет! Я бегаю быстрее всех, а еще я невероятно вынослив!"
-    bot.send_message(message.chat.id, "Давай, я спрячутвоё фото в самое укромное место, никто не найдет!"
+    bot.send_message(message.chat.id, "Привет! Я бегаю быстрее всех, а еще я невероятно вынослив!")
+    bot.send_message(message.chat.id, "Давай, я спрячутвоё фото в самое укромное место, никто не найдет!")
     bot.send_message(message.chat.id, "...Кроме нас, конечно же ;)")
     set_state(message.chat.id, States.S_DECIDE.value)
 
