@@ -80,14 +80,17 @@ def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
     set_state(message.chat.id, States.S_START.value)
 
-@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value)
+@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value,
+                     content_types=['text'])
 def user_entering_name(message):
-    bot.send_message(message.chat.id, """Привет! Я бегаю быстрее всех, а еще я невероятно вынослив! Давай, я спрячу 
-                                    твоё фото в самое укромное место, никто не найдет!...Кроме нас, конечно же ;)""")
+    bot.send_message(message.chat.id, "Привет! Я бегаю быстрее всех, а еще я невероятно вынослив!"
+    bot.send_message(message.chat.id, "Давай, я спрячутвоё фото в самое укромное место, никто не найдет!"
+    bot.send_message(message.chat.id, "...Кроме нас, конечно же ;)")
     set_state(message.chat.id, States.S_DECIDE.value)
 
 
-@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_DECIDE.value)
+@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_DECIDE.value,
+                     content_types=['text'])
 def user_entering_name(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
@@ -103,7 +106,8 @@ def user_entering_name(message):
     set_state(message.chat.id, States.S_SEND_PIC.value)
 
     
-@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value, content_types=['photo'])
+@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value,
+                     content_types=['photo'])
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где я спрятал твое фото!")
     print ('message.photo =', message.photo)
@@ -137,7 +141,8 @@ def user_picture(message):
     bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
     set_state(message.chat.id, States.S_DECIDE.value)
 
-    @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value)
+    @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
+                         content_types=[text])
     def exit_chat(message):
         bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
         set_state(message.chat.id, States.S_START.value)
