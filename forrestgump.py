@@ -65,7 +65,7 @@ def cmd_start(message):
             reply_markup=markup
         )
         results.append(single_msg)
-        bot.answer_inline_query(query.id, results)
+        bot.answer_inline_query(message.chat.id, results)
         #bot.send_message(message.chat.id, "Ну что, дашь мне поручение? :)", reply_markup=markup)
     elif state == States.S_SEND_PIC.value:
         bot.send_message(message.chat.id, "Я все еще жду фото... Не медли, я на низком старте :)")
