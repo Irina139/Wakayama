@@ -24,9 +24,8 @@ class States(Enum):
     поэтому и тут будем использовать тоже строки (str)
     """
     S_START = "0"  # Начало нового диалога
-    S_DECIDE = "1"
-    S_SEND_PIC = "2"
-    S_EXIT = "3"
+    S_SEND_PIC = "1"
+    S_EXIT = "2"
 
 # Пытаемся узнать из базы «состояние» пользователя
 def get_current_state(user_id):
@@ -51,7 +50,7 @@ path=os.getcwd()
 # Начало диалога
 
 
-@bot.message_handler(commands=["start"], content_types=['text'])
+"""@bot.message_handler(commands=["start"], content_types=['text'])
 def cmd_start(message):
     state = get_current_state(message.chat.id)
     if state == States.S_DECIDE.value:
@@ -70,20 +69,21 @@ def cmd_start(message):
     elif state == States.S_SEND_PIC.value:
         bot.send_message(message.chat.id, "Я все еще жду фото... Не медли, я на низком старте :)")
     else:  # Под "остальным" понимаем состояние "0" - начало диалога
-        bot.send_message(message.chat.id, "Привет! Давай я спрячу твое фото ;)")
-        set_state(message.chat.id, States.S_DECIDE.value)
+        bot.send_message(message.chat.id, "Привет! Давай я спрячу твое фото ;)")"""
+
 
 
 # По команде /reset будем сбрасывать состояния, возвращаясь к началу диалога
-@bot.message_handler(commands=["reset"], content_types=['text'])
+@bot.message_handler(commands=["start","reset"], content_types=['text'])
 def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
+    bot.send_message(message.chat.id, "(не обращай внимание на мои мысли вслух, лучше пришли ЛЮБОЙ ТЕКСТ, я жду)")
     set_state(message.chat.id, States.S_START.value)
 
 @bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value,
                      content_types=['text'])
 def user_entering_name(message):
-    bot.send_message(message.chat.id, "Давай, я спрячу твоё фото, никто не найдет!")
+    bot.send_message(message.chat.id, "Что ж, давай, я спрячу твоё фото, никто не найдет!")
     bot.send_message(message.chat.id, "...Кроме нас, конечно же ;)")
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
@@ -149,10 +149,10 @@ def callback_inline(call):
         if call.data == "да":
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Отлично! Присылай фото и ничего, кроме фото!")
-
+            set_state(message.chat.id, States.S_SEND_PIC.value)
         else:
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Жаль, тогда попробуем в следующий раз (напиши мне /reset)")
+                                      text="Жаль, тогда попробуем в следующий раз (напиши мне /reset, я жду)")
             set_state(message.chat.id, States.S_EXIT.value)
 
     """!!!!!!!!!!!!!!!!!!!!!!!!!!!
