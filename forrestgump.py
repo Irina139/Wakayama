@@ -148,11 +148,11 @@ def user_picture(message):
         if call.message:
             if call.data == "да":
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Отлично! Присылай фото!")
-                set_state(message.chat.id, States.S_SEND_PIC.value)
+                                      text="Отлично! Присылай фото и ничего, кроме фото!")
+
             else:
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Жаль, тогда попробуем в следующий раз")
+                                      text="Жаль, тогда попробуем в следующий раз (напиши мне /reset)")
                 set_state(message.chat.id, States.S_EXIT.value)
 
     """!!!!!!!!!!!!!!!!!!!!!!!!!!!
