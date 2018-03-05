@@ -83,15 +83,9 @@ def cmd_reset(message):
 @bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value,
                      content_types=['text'])
 def user_entering_name(message):
-    bot.send_message(message.chat.id, "Привет! Я бегаю быстрее всех, а еще я невероятно вынослив!")
-    bot.send_message(message.chat.id, "Давай, я спрячутвоё фото в самое укромное место, никто не найдет!")
+    bot.send_message(message.chat.id, "Давай, я спрячу твоё фото, никто не найдет!")
     bot.send_message(message.chat.id, "...Кроме нас, конечно же ;)")
-    set_state(message.chat.id, States.S_DECIDE.value)
 
-
-@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_DECIDE.value,
-                     content_types=['text'])
-def user_entering_name(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
     markup.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
@@ -109,7 +103,7 @@ def user_entering_name(message):
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value,
                      content_types=['photo'])
 def user_picture(message):
-    bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где я спрятал твое фото!")
+    bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
     print ('message.photo =', message.photo)
     fileID = message.photo[-1].file_id
     print ('fileID =', fileID)
@@ -131,15 +125,16 @@ def user_picture(message):
                 break
 
             handle.write(block)
-    result = []
+
     user = message.from_user
     result = [user, long_url]
     print(result)
+
     keyboard = types.InlineKeyboardMarkup()
     url_button = types.InlineKeyboardButton(text="Нажми и увидишь своё фото", url=long_url)
     keyboard.add(url_button)
     bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
-    set_state(message.chat.id, States.S_DECIDE.value)
+    set_state(message.chat.id, States.S_START.value)
 
     @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
                          content_types=[text])
