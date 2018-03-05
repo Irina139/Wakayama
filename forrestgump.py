@@ -149,11 +149,11 @@ def callback_inline(call):
         if call.data == "да":
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Отлично! Присылай фото и ничего, кроме фото!")
-            set_state(message.chat.id, States.S_SEND_PIC.value)
+            set_state(call.message.chat.id, States.S_SEND_PIC.value)
         else:
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Жаль, тогда попробуем в следующий раз (напиши мне /reset, я жду)")
-            set_state(message.chat.id, States.S_EXIT.value)
+            set_state(call.message.chat.id, States.S_EXIT.value)
 
     """!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #подключаем бота к S3
