@@ -85,19 +85,18 @@ def cmd_reset(message):
 def user_entering_name(message):
     bot.send_message(message.chat.id, "Давай, я спрячу твоё фото, никто не найдет!")
     bot.send_message(message.chat.id, "...Кроме нас, конечно же ;)")
-
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
     markup.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
-    results = []
+    """results = []
     single_msg = types.InlineQueryResultArticle(
         id="1", title="Решайся",
         input_message_content=types.InputTextMessageContent(message_text="Ну что, хочешь дать мне поручение? :)"),
         reply_markup=markup
     )
-    results.append(single_msg)
-    bot.answer_inline_query(message.chat.id, results)
-    set_state(message.chat.id, States.S_SEND_PIC.value)
+    results.append(single_msg)"""
+    bot.send_message(message.chat.id,"Ну что, хочешь дать мне поручение? :)", reply_markup = markup)
+    """set_state(message.chat.id, States.S_SEND_PIC.value)"""
 
     
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value,
@@ -127,7 +126,8 @@ def user_picture(message):
             handle.write(block)
 
     user = message.from_user
-    result = [user, long_url]
+    result = []
+    result.append(user,long_url)
     print(result)
 
     keyboard = types.InlineKeyboardMarkup()
