@@ -127,7 +127,7 @@ def user_picture(message):
 
     user = message.from_user
     result = []
-    result.append(user,long_url)
+    result.append(user)
     print(result)
 
     keyboard = types.InlineKeyboardMarkup()
