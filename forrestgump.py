@@ -137,7 +137,7 @@ def user_picture(message):
     set_state(message.chat.id, States.S_START.value)
 
 @bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
-                         content_types=[text])
+                     content_types=[text])
 def exit_chat(message):
         bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
         set_state(message.chat.id, States.S_START.value)
