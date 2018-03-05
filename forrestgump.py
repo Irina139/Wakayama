@@ -144,16 +144,16 @@ def exit_chat(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
-        # Если сообщение из чата с ботом
-        if call.message:
-            if call.data == "да":
-                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+    # Если сообщение из чата с ботом
+    if call.message:
+        if call.data == "да":
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Отлично! Присылай фото и ничего, кроме фото!")
 
-            else:
-                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+        else:
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Жаль, тогда попробуем в следующий раз (напиши мне /reset)")
-                set_state(message.chat.id, States.S_EXIT.value)
+            set_state(message.chat.id, States.S_EXIT.value)
 
     """!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #подключаем бота к S3
