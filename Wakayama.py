@@ -11,6 +11,7 @@ from telebot import types
 import requests
 import pictures_config as config
 import boto3
+#import tinys3
 
 bot = telebot.TeleBot(config.token)
 
@@ -49,15 +50,21 @@ def user_picture(message):
     bot.reply_to(message, "Фото добавлено")"""
 
     user = message.from_user.id
+    file_name = file_info.file_path
     bot.send_message(message.chat.id, "Шаг 2/5: Я получил user_id = {0}".format(user))
+
     s3 = boto3.resource('s3')
+    bot.send_message(message.chat.id, "Подключился к облаку")
     file_name=file_info.file_path
     bucket_name='wakayama13'
-    s3.put_object(Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
+    s3.client.put_object(Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
     bot.send_message(message.chat.id, "Шаг 3/5: Я загрузил файл в облако")
-    s3_url='{0}/{1}/{2}'.format(s3.meta.endpoint_url,Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
-    bot.send_message(message.chat.id, "Шаг 5/5: Лови ссылку => {0}".format(s3_url))
+    s3_url='{0}/{1}/{2}'.format(config.endpoint, Bucket=bucket_name, Key="{0}/{1}".format(user,file_name))
+    bot.send_message(message.chat.id, "Шаг 5/5: Лови ссылку => {0}".format(s3_url))"""
 
+    conn=tinys3.Connection(config.access_key,config.secret_key,tls=True,endpoint=config.endpoint)
+    f = open('file_name, 'rb')
+    conn.upload(file_name, f, 'my_bucket')
 
 
 
