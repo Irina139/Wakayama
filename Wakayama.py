@@ -50,7 +50,7 @@ def user_picture(message):
 
     user = message.from_user.id
     bot.send_message(message.chat.id, "Шаг 2/5: Я получил user_id = {0}".format(user))
-    s3 = boto3.client('s3')
+    s3 = boto3.resource('s3')
     file_name=file_info.file_path
     bucket_name='wakayama13'
     s3.put_object(Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
