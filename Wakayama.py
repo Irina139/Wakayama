@@ -36,13 +36,13 @@ def user_entering_name(message):
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
     file_info = bot.get_file(message.photo[len(message.photo)-1].file_id)
-    bot.send_message(message.chat.id, "Шаг 1/3: Я получил file_id")
+    bot.send_message(message.chat.id, "Шаг 1/3: Я получил file_id = {0}".format(file_info))
     downloaded_file = bot.download_file(file_info.file_path)
-    bot.send_message(message.chat.id, "Шаг 2/3: Я скачал файл")
+    bot.send_message(message.chat.id, "Шаг 2/3: Я скачал файл = {0}".format(downloaded_file))
     api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(config.token, file_info.file_id)
     #file = requests.get(api_url)
-    user = message.from_user.id
     bot.send_message(message.chat.id, "Шаг 3/3: ссылка на твой файл => {0}".format(api_url))
+    user = message.from_user.id
     bot.send_message(message.chat.id, "твой user_id = {0}".format(user))
     src = 'D://FinTech/Cloud_computing/Wakayama/{0}/{1}'.format(user,file_info.file_path)
     with open(src, 'wb') as new_file:
