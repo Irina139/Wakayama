@@ -39,7 +39,7 @@ def user_picture(message):
     fileID = message.photo[-1].file_id
     print ('fileID =', fileID)
     file = bot.get_file(fileID)
-    print ('file.file_path =', file.file_path)
+    print ('file.file_path =', 'File path = %s'%(file.file_path))
     bot.send_message(message.chat.id, fileID)
     user = message.from_user
     s3 = boto3.client('s3')
