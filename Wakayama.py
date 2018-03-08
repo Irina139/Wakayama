@@ -36,20 +36,27 @@ def user_entering_name(message):
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
     file_info = bot.get_file(message.photo[len(message.photo)-1].file_id)
-    bot.send_message(message.chat.id, "Шаг 1/3: Я получил file_id = {0}".format(file_info))
-    downloaded_file = bot.download_file(file_info.file_path)
-    bot.send_message(message.chat.id, "Шаг 2/3: Я скачал файл")
-    api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(config.token, file_info.file_id)
-    #file = requests.get(api_url)
+    bot.send_message(message.chat.id, "Шаг 1/5: Я получил file_path = {0}".format(file_info.file_path))
+
+    """api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(config.token, file_info.file_path)
     bot.send_message(message.chat.id, "Шаг 3/3: ссылка на твой файл => {0}".format(api_url))
-    user = message.from_user.id
-    bot.send_message(message.chat.id, "твой user_id = {0}".format(user))
+    !!!ВЫШЕ ==> ПОЧЕМУ-ТО НЕ РАБОТАЕТ, ПОПРОБУЕМ ВЫВЕСТИ ССЫЛКУ ИЗ S3
+    !!!НИЖЕ ==> НАДО РАЗБИРАТЬСЯ, КАК СОЗДАВАТЬ ДИРЕКТОРИИ...
+    downloaded_file = bot.download_file(file_info.file_path)
     src = 'D://FinTech/Cloud_computing/Wakayama/{0}/{1}'.format(user,file_info.file_path)
     with open(src, 'wb') as new_file:
         new_file.write(downloaded_file)
-    bot.reply_to(message, "Фото добавлено")
+    bot.reply_to(message, "Фото добавлено")"""
 
+    user = message.from_user.id
+    bot.send_message(message.chat.id, "Шаг 2/5: Я получил user_id = {0}".format(user))
     s3 = boto3.client('s3')
+    file_name=file_info.file_path
+    bucket_name='wakayama13'
+    s3.put_object(Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
+    bot.send_message(message.chat.id, "Шаг 3/5: Я загрузил файл в облако")
+    s3_url='{0}/{1}/{2}'.format(s3.meta.endpoint_url,Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
+    bot.send_message(message.chat.id, "Шаг 5/5: Лови ссылку => {0}".format(s3_url))
 
 
 
