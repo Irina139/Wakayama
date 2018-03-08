@@ -35,7 +35,7 @@ def user_entering_name(message):
 @bot.message_handler(content_types=['photo'])
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
-    fileID = message.photo[-1].file_id
+    fileID = message.file_id
     file = bot.get_file(fileID)
     bot.send_message(message.chat.id, 'File path = %s'%(file.file_path))
     user = message.from_user
