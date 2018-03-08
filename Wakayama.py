@@ -35,10 +35,13 @@ def user_entering_name(message):
 @bot.message_handler(content_types=['photo'])
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
-    fileID = message.file_id
-    file = bot.get_file(fileID)
-    bot.send_message(message.chat.id, "File path = "+str(file.file_path))
+    file_info = bot.get_file(message.file_id)
+    api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(bot, file_info.file_path)
+    #file = requests.get(api_url)
     user = message.from_user
+    bot.send_message(message.chat.id, "URL = {0}".format(api_url))
+    bot.send_message(message.chat.id, "File_id = {0}".format(file_info))
+
     s3 = boto3.client('s3')
 
 
