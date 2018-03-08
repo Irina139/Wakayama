@@ -35,12 +35,9 @@ def user_entering_name(message):
 @bot.message_handler(content_types=['photo'])
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
-    print ('message.photo =', message.photo)
     fileID = message.photo[-1].file_id
-    print ('fileID =', fileID)
     file = bot.get_file(fileID)
-    print ('file.file_path =', 'File path = %s'%(file.file_path))
-    bot.send_message(message.chat.id, fileID)
+    bot.send_message(message.chat.id, 'File path = %s'%(file.file_path))
     user = message.from_user
     s3 = boto3.client('s3')
 
