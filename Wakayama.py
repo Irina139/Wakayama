@@ -40,16 +40,21 @@ def user_picture(message):
     print ('fileID =', fileID)
     file = bot.get_file(fileID)
     print ('file.file_path =', file.file_path)
-
+    bot.send_message(message.chat.id, fileID)
     user = message.from_user
-    result = []
+    s3 = boto3.client('s3')
+
+
+
+
+    """result = []
     result.append(user)
     print(result)
 
     keyboard = types.InlineKeyboardMarkup()
-    url_button = types.InlineKeyboardButton(text="Нажми и увидишь своё фото", url=long_url)
+    url_button = types.InlineKeyboardButton(text="Нажми и увидишь своё фото", url=)
     keyboard.add(url_button)
-    bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)"""
 
 
 @bot.callback_query_handler(func=lambda call: True)
