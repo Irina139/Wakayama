@@ -15,8 +15,6 @@ from enum import Enum
 
 token = '548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis'
 db_file = "pictures.vdb"
-access_key='AKIAIXD5NDX2UNCSJNBA'
-secret_key='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'
 endpoint='s3-us-east-2.amazonaws.com'
 
 
