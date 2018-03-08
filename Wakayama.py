@@ -39,12 +39,12 @@ def user_picture(message):
     bot.send_message(message.chat.id, "Шаг 1/3: Я получил file_id")
     downloaded_file = bot.download_file(file_info.file_path)
     bot.send_message(message.chat.id, "Шаг 2/3: Я скачал файл")
-    api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(bot, file_info.file_path)
+    api_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(config.token, file_info.file_id)
     #file = requests.get(api_url)
-    user = message.from_user
+    user = message.from_user[id]
     bot.send_message(message.chat.id, "Шаг 3/3: ссылка на твой файл => {0}".format(api_url))
     bot.send_message(message.chat.id, "твой user_id = {0}".format(user))
-    src = 'D://FinTech/Cloud_computing/Wakayama/'+user+'/'+file_info.file_path
+    src = 'D://FinTech/Cloud_computing/Wakayama/{0}/{1}'.format(user,file_info.file_path)
     with open(src, 'wb') as new_file:
         new_file.write(downloaded_file)
     bot.reply_to(message, "Фото добавлено")
