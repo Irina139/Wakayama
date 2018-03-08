@@ -9,20 +9,20 @@ Created on Sat Mar 03 13:22 2018
 import telebot
 from telebot import types
 #import dbworker
-import os
+'import os
 import requests
-from vedis import Vedis
-from enum import Enum
+'from vedis import Vedis
+'from enum import Enum
 import pictures_config as config
 
 bot = telebot.TeleBot(config.token)
-db_file = "pictures.vdb"
+'db_file = "pictures.vdb"
 
-class States(Enum):
-    """
+"""class States(Enum):
+    
     Мы используем БД Vedis, в которой хранимые значения всегда строки,
     поэтому и тут будем использовать тоже строки (str)
-    """
+    
     S_START = "0"  # Начало нового диалога
     S_SEND_PIC = "1"
     S_EXIT = "2"
@@ -44,7 +44,7 @@ def set_state(user_id, value):
         except:
             # тут желательно как-то обработать ситуацию
             return False
-
+"""
 path=os.getcwd()
 
 # Начало диалога
@@ -78,9 +78,9 @@ def cmd_start(message):
 def cmd_reset(message):
     bot.send_message(message.chat.id, "С возвращением! Может, хотя бы в этот раз побегаю и разомнусь,ноги затекли")
     bot.send_message(message.chat.id, "(не обращай внимание на мои мысли вслух, лучше пришли ЛЮБОЙ ТЕКСТ, я жду)")
-    set_state(message.chat.id, States.S_START.value)
+    'set_state(message.chat.id, States.S_START.value)
 
-@bot.message_handler(func=lambda  message: get_current_state(message.chat.id) == States.S_START.value,
+@bot.message_handler(func=lambda  """message: get_current_state(message.chat.id) == States.S_START.value""",
                      content_types=['text'])
 def user_entering_name(message):
     bot.send_message(message.chat.id, "Что ж, давай, я спрячу твоё фото, никто не найдет!")
@@ -99,7 +99,7 @@ def user_entering_name(message):
     """set_state(message.chat.id, States.S_SEND_PIC.value)"""
 
     
-@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_SEND_PIC.value,
+@bot.message_handler(func=lambda """message: get_current_state(message.chat.id) == States.S_SEND_PIC.value""",
                      content_types=['photo'])
 def user_picture(message):
     bot.send_message(message.chat.id, "Подожди немного, скоро вернусь и расскажу, где спрятал твое фото!")
@@ -108,7 +108,7 @@ def user_picture(message):
     print ('fileID =', fileID)
     file = bot.get_file(fileID)
     print ('file.file_path =', file.file_path)
-    telegram_api='http://api.telegram.org/file/bot548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis/'
+    """telegram_api='http://api.telegram.org/file/bot548774974:AAHW4F5trZ5tQ1bydKPvAmVYGbd4i1gPDis/'
     long_url=os.path.join(telegram_api, file.file_path.rsplit('/', 1)[-1])
     print(long_url)
     #image = urllib.URLopener()
@@ -123,7 +123,7 @@ def user_picture(message):
             if not block:
                 break
 
-            handle.write(block)
+            handle.write(block)"""
 
     user = message.from_user
     result = []
@@ -134,13 +134,13 @@ def user_picture(message):
     url_button = types.InlineKeyboardButton(text="Нажми и увидишь своё фото", url=long_url)
     keyboard.add(url_button)
     bot.send_message(message.chat.id, "Ну, вот и все, твое фото лежит тут! быстро, не правда ли :)", reply_markup=keyboard)
-    set_state(message.chat.id, States.S_START.value)
+    "set_state(message.chat.id, States.S_START.value)
 
-@bot.message_handler(func=lambda message: get_current_state(message.chat.id) == States.S_EXIT.value,
+@bot.message_handler(func=lambda """message: get_current_state(message.chat.id) == States.S_EXIT.value""",
                      content_types= ["text"])
 def exit_chat(message):
         bot.send_message(message.chat.id, "Не забывай про меня! До встречи!")
-        set_state(message.chat.id, States.S_START.value)
+        "set_state(message.chat.id, States.S_START.value)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
@@ -149,11 +149,11 @@ def callback_inline(call):
         if call.data == "да":
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Отлично! Присылай фото и ничего, кроме фото!")
-            set_state(call.message.chat.id, States.S_SEND_PIC.value)
+            "set_state(call.message.chat.id, States.S_SEND_PIC.value)
         else:
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Жаль, тогда попробуем в следующий раз (напиши мне /reset, я жду)")
-            set_state(call.message.chat.id, States.S_EXIT.value)
+            "set_state(call.message.chat.id, States.S_EXIT.value)
 
     """!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #подключаем бота к S3
