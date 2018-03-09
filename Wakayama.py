@@ -57,7 +57,16 @@ def user_picture(message):
     bot.send_message(message.chat.id, "Подключился к облаку")
     file_name=file_info.file_path
     bucket_name="wakayama13"
-    s3.meta.client.upload_file(Filename=file_name,Bucket=bucket_name,Key="{0}/{1}".format(user,file_name))
+    bucket=s3.Bucket(bucket_name)
+
+    for object in bucket.objects.all():
+        if object.key == "{0}/{1}".format(user,file_name[:6]):
+            bucket.upload_file(Filename=file_name, Key="{0}/{1}".format(user, file_name))
+        else:
+            bucket.put_object(Key="{0}/{1}".format(user,file_name[:6]))
+            bucket.upload_file(Filename=file_name,Key="{0}/{1}".format(user,file_name))
+
+    
     bot.send_message(message.chat.id, "Шаг 3/5: Я загрузил файл в облако")
     s3_url="{0}/{1}/{2}".format(config.endpoint, Bucket=bucket_name, Key="{0}/{1}".format(user,file_name))
     bot.send_message(message.chat.id, "Шаг 5/5: Лови ссылку => {0}".format(s3_url))
