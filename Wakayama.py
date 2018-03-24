@@ -50,7 +50,6 @@ def user_picture(message):
     bot.reply_to(message, "Фото добавлено")"""
 
     user = message.from_user.id
-    file_name = file_info.file_path
     bot.send_message(message.chat.id, "Шаг 2/5: Я получил user_id = {0}".format(user))
 
     s3 = boto3.resource('s3')
@@ -69,7 +68,12 @@ def user_picture(message):
     
     bot.send_message(message.chat.id, "Шаг 3/5: Я загрузил файл в облако")
     s3_url="{0}/{1}/{2}".format(config.endpoint, Bucket=bucket_name, Key="{0}/{1}".format(user,file_name))
-    bot.send_message(message.chat.id, "Шаг 5/5: Лови ссылку => {0}".format(s3_url))
+    bot.send_message(message.chat.id, "Шаг 4/5: Лови ссылку => {0}".format(s3_url))
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton(text="Да", callback_data="да"))
+    markup.add(types.InlineKeyboardButton(text="Нет", callback_data="нет"))
+    bot.send_message(message.chat.id, "Ну что, хочешь дать мне еще одно поручение? :)", reply_markup=markup)
 
 
     """result = []
@@ -95,11 +99,6 @@ def callback_inline(call):
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Жаль, тогда попробуем в следующий раз (напиши мне /reset, я жду)")
 
-
-    """!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #подключаем бота к S3
-    s3 = boto3.resource('s3')
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
 
 
 
